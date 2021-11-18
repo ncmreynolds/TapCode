@@ -1,0 +1,10 @@
+TapCode	KEYWORD1
+Tap	KEYWORD1
+
+//Setup
+begin	KEYWORD2
+Housekeeping	KEYWORD2
+Reset	KEYWORD2
+Debug	KEYWORD2
+Length	KEYWORD2
+Text	KEYWORD2
