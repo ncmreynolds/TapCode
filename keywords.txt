@@ -1,10 +1,11 @@
 TapCode	KEYWORD1
-Tap	KEYWORD1
 
 //Setup
 begin	KEYWORD2
-Housekeeping	KEYWORD2
-Reset	KEYWORD2
-Debug	KEYWORD2
-Length	KEYWORD2
-Text	KEYWORD2
+read	KEYWORD2
+reset	KEYWORD2
+debug	KEYWORD2
+length	KEYWORD2
+word	KEYWORD2
+changed	KEYWORD2
+finished	KEYWORD2
