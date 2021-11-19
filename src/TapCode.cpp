@@ -22,21 +22,34 @@ TapCode::~TapCode()	//Destructor function
 }
 
 #if defined(ESP8266) || defined(ESP32)
-void ICACHE_FLASH_ATTR TapCode::begin(uint8_t input_length)	{
+void ICACHE_FLASH_ATTR TapCode::begin(uint8_t max_length, uint32_t press_timeout, uint32_t word_timeout)	{
 #else
-void TapCode::begin(uint8_t input_length)	{
+void TapCode::begin(uint8_t max_length, uint32_t press_timeout, uint32_t word_timeout)	{
 #endif
 	if(debug_uart_ != nullptr)
 	{
 		debug_uart_->print(F("Tap decoder running on pin "));
 		debug_uart_->print(tap_pin_);
 		debug_uart_->print(F(" maximum input length "));
-		debug_uart_->println(input_length);
+		debug_uart_->println(max_length);
+		if(press_timeout != press_timeout_)
+		{
+			debug_uart_->print(F("Button press timeout "));
+			debug_uart_->print(press_timeout);
+			debug_uart_->println("ms");
+		}
+		if(word_timeout != word_timeout_)
+		{
+			debug_uart_->print(F("Word entry timeout "));
+			debug_uart_->print(word_timeout);
+			debug_uart_->println("ms");
+		}
 	}
-	tapped_code_ = new char[input_length];
-	max_length_ = input_length;
+	tapped_code_ = new char[max_length];
+	max_length_ = max_length;
+	press_timeout_ = press_timeout;
+	word_timeout_ = word_timeout;
 	this->tap_button_.begin();
-	//this->tap_button_.onPressed(onPressed());
 }
 
 
@@ -175,9 +188,37 @@ bool TapCode::finished(){
 	if(finished_ == true)
 	{
 		finished_ = false;
+		press_time_ = millis();
 		return(true);
 	}
 	return(false);
+}
+
+#if defined(ESP8266) || defined(ESP32)
+bool  ICACHE_FLASH_ATTR TapCode::matches(char* stringToMatch){
+#else
+bool TapCode::matches(char* stringToMatch){
+#endif
+	if(stringToMatch == nullptr)
+	{
+		return(false);
+	}
+	if(strlen(stringToMatch) != length_)
+	{
+		return(false);
+	}
+	for(uint8_t index = 0; index < length_ ; index++)
+	{
+		char characterToMatch = toupper(stringToMatch[index]);
+		if(characterToMatch == 'K') {
+			characterToMatch = 'C';
+		}
+		if(characterToMatch != tapped_code_[index])
+		{
+			return(false);
+		}
+	}	
+	return(true);
 }
 
 

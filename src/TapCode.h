@@ -16,13 +16,14 @@ class TapCode	{
 	public:
 		TapCode(uint8_t);														//Constructor function
 		~TapCode();																//Destructor function
-		void begin(uint8_t input_length = 64);									//Start the tap input
+		void begin(uint8_t max_length = 64, uint32_t press_timeout = 1000, uint32_t word_timeout = 5000);	//Start the tap input
 		void read();															//Do housekeeping checking for pushes
 		void debug(Stream &);													//Enable debug output on a Serial stream
 		bool changed();															//True if the current word has changed
 		bool finished();														//True if the word has finished
-		uint8_t length();														//Length of the input string
-		char* word();															//Returns a pointer to the text string
+		bool matches(char*);													//True if the word matches a C string passed to the function
+		uint8_t length();														//Length of the tapped word
+		char* word();															//Returns a pointer to the tapped word
 		void reset();															//Reset the accumulated string
 	protected:
 	private:
@@ -42,7 +43,7 @@ class TapCode	{
 		bool pressed_ = false;													//Is the button currently pressed
 		uint32_t press_time_ = 0;												//When was the button pressed
 		uint32_t press_timeout_ = 1000;											//Timeout for presses
-		uint32_t word_timeout_ = 5000;											//Timeout for presses
+		uint32_t word_timeout_ = 5000;											//Timeout for words
 		uint8_t presses_ = 0;
 };
 #endif
