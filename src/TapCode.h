@@ -14,7 +14,7 @@
 class TapCode	{
 
 	public:
-		TapCode(uint8_t);														//Constructor function
+		TapCode(uint8_t tap_button, uint8_t mode = INPUT_PULLUP);				//Constructor function
 		~TapCode();																//Destructor function
 		void begin(uint8_t max_length = 64, uint32_t press_timeout = 1000, uint32_t word_timeout = 5000);	//Start the tap input
 		void read();															//Do housekeeping checking for pushes

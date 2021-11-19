@@ -11,10 +11,11 @@
 #include "TapCode.h"
 
 
-TapCode::TapCode(uint8_t button)	//Constructor function
-  : tap_button_(button)				//Calls constructor of class EasyButton
+TapCode::TapCode(uint8_t tap_button, uint8_t mode)	//Constructor function
+  : tap_button_(tap_button)				//Calls constructor of class EasyButton
 {
-	tap_pin_ = button;
+	tap_pin_ = tap_button;
+	pinMode(tap_pin_, mode);
 }
 
 TapCode::~TapCode()	//Destructor function
