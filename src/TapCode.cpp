@@ -41,18 +41,22 @@ void TapCode::begin(uint8_t input_length)	{
 
 
 #if defined(ESP8266) || defined(ESP32)
-void ICACHE_FLASH_ATTR TapCode::Reset() {
+void ICACHE_FLASH_ATTR TapCode::reset() {
 #else
-void TapCode::Reset() {
+void TapCode::reset() {
 #endif
+	row_ = 0;
+	column_ = 0;
+	changed_ = false;
+	finished_ = false;
 	length_ = 0;	//Reset the accumulated string
 	tapped_code_[0] = char(0);
 }
 
 #if defined(ESP8266) || defined(ESP32)
-void  ICACHE_FLASH_ATTR TapCode::Housekeeping(){
+void  ICACHE_FLASH_ATTR TapCode::read(){
 #else
-void TapCode::Housekeeping(){
+void TapCode::read(){
 #endif
 	this->tap_button_.read();
 	if(this->tap_button_.isPressed() && pressed_ == false)
@@ -77,10 +81,6 @@ void TapCode::Housekeeping(){
 	if(this->tap_button_.isReleased() && pressed_ == true)
 	{
 		pressed_ = false;
-		/*if(debug_uart_ != nullptr)
-		{
-			debug_uart_->println(F("Released"));
-		}*/
 
 	}
 	if((presses_ > 0 && millis() - press_time_ > press_timeout_) || presses_ == 5)
@@ -125,28 +125,74 @@ void TapCode::Housekeeping(){
 			}
 		}
 	}
+	if(presses_ == 0 && millis() - press_time_ > word_timeout_)	//Letter or word timeout
+	{
+		if(row_ != 0)	//Letter timeout
+		{
+			if(debug_uart_ != nullptr)
+			{
+				debug_uart_->println(F("Letter timeout"));
+			}
+			row_ = 0;
+		}
+		else if(length_ > 0 && finished_ == false)
+		{
+			if(debug_uart_ != nullptr)
+			{
+				debug_uart_->println(F("Word finished"));
+			}
+			finished_ = true;
+		}
+	}
 }
 
 #if defined(ESP8266) || defined(ESP32)
-uint8_t  ICACHE_FLASH_ATTR TapCode::Length(){
+uint8_t  ICACHE_FLASH_ATTR TapCode::length(){
 #else
-uint8_t TapCode::Length(){
+uint8_t TapCode::length(){
 #endif
 	return(length_);
 }
 
 #if defined(ESP8266) || defined(ESP32)
-char*  ICACHE_FLASH_ATTR TapCode::Text(){
+bool  ICACHE_FLASH_ATTR TapCode::changed(){
 #else
-char* TapCode::Text(){
+bool TapCode::changed(){
+#endif
+	if(changed_ == true)
+	{
+		changed_ = false;
+		return(true);
+	}
+	return(false);
+}
+
+#if defined(ESP8266) || defined(ESP32)
+bool  ICACHE_FLASH_ATTR TapCode::finished(){
+#else
+bool TapCode::finished(){
+#endif
+	if(finished_ == true)
+	{
+		finished_ = false;
+		return(true);
+	}
+	return(false);
+}
+
+
+#if defined(ESP8266) || defined(ESP32)
+char*  ICACHE_FLASH_ATTR TapCode::word(){
+#else
+char* TapCode::word(){
 #endif
 	return(tapped_code_);
 }
 
 #if defined(ESP8266) || defined(ESP32)
-void ICACHE_FLASH_ATTR TapCode::Debug(Stream &terminalStream)
+void ICACHE_FLASH_ATTR TapCode::debug(Stream &terminalStream)
 #else
-void TapCode::Debug(Stream &terminalStream)
+void TapCode::debug(Stream &terminalStream)
 #endif
 {
 	debug_uart_ = &terminalStream;		//Set the stream used for the terminal
@@ -158,15 +204,4 @@ void TapCode::Debug(Stream &terminalStream)
 	#endif
 }
 
-/*#if defined(ESP8266) || defined(ESP32)
-void ICACHE_FLASH_ATTR TapCode::onPressed()
-#else
-void TapCode::onPressed()
-#endif
-{
-	if(debug_uart_ != nullptr)
-	{
-		debug_uart_->println("Tap code button pressed");
-	}
-}*/
 #endif
