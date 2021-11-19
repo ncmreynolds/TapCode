@@ -33,6 +33,8 @@ If you turn on debugging it will show the row and column selection making it eas
 ## Methods
 
 ```c++
+TapCode tapInput(uint8_t tap_button, uint8_t mode = INPUT_PULLUP);  //Declare an instance 'tapInput' and start a tap input on pin tap_button. The library controls the pin and does not need pinMode setting before this. Default is INPUT_PULLUP but this can be overriden.
+
 void begin(uint8_t max_length = 64, uint32_t press_timeout = 1000, uint32_t word_timeout = 5000);	//Start the tap input
 
 void read(); //Do housekeeping checking for pushes, run in loop to update the word as the button is tapped
